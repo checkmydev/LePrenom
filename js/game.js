@@ -61,14 +61,19 @@ async function startRound() {
       try {
         await upsertRating({ prenom: p.prenom, sexe: p.sexe, parent, note });
         slot.textContent = "✔️ Noté " + note + "/10";
-        if (note > SEUIL_ANALYSE_IA) {
-          slot.textContent = "✨ Analyse du prénom en cours…";
+      } catch (e) {
+        slot.textContent = "⚠️ Erreur d'enregistrement : " + e.message;
+        return;
+      }
+      if (note > SEUIL_ANALYSE_IA) {
+        slot.textContent = "✨ Analyse du prénom en cours…";
+        try {
           const a = await analyserPrenom(p.prenom, p.sexe);
           slot.innerHTML = `✨ <b>${p.prenom}</b> : ${a.signification || ""}
             <a href="#fiche" data-prenom="${p.prenom}" data-sexe="${p.sexe}">voir la fiche →</a>`;
+        } catch {
+          slot.textContent = "✔️ Noté " + note + "/10 · (analyse IA pas encore activée)";
         }
-      } catch (e) {
-        slot.textContent = "⚠️ Erreur : " + e.message;
       }
     };
     renderStars(rateEl, { onRate });

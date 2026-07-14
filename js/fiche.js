@@ -22,6 +22,14 @@ export async function initFiche() {
         <p><b>Avec « Gerard » :</b> ${a.compat_gerard || "—"}</p>
       </div>`;
   } catch (e) {
-    el().innerHTML = `<div class="card">⚠️ ${e.message}</div>`;
+    // Cas principal aujourd'hui : l'Edge Function IA n'est pas encore déployée.
+    el().innerHTML = `
+      <div class="card">
+        <h2>${prenom} <span class="badge-sexe ${sexe||''}">${sexe==='f'?'fille':sexe==='m'?'garçon':''}</span></h2>
+        <p>✨ L'analyse IA (signification, jeux de mots, compatibilité avec « Gerard »)
+        n'est pas encore activée.</p>
+        <p style="color:#6b21a8; font-size:.9rem">Elle apparaîtra ici une fois la fonction
+        d'analyse déployée. En attendant, tu peux continuer à noter et à faire des duels.</p>
+      </div>`;
   }
 }
