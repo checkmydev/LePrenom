@@ -1,7 +1,7 @@
 import { loadCatalog, pickRound } from "./catalog.js";
 import { renderStars } from "./stars.js";
 import { getParent } from "./profile.js";
-import { upsertRating, toggleFavori, fetchFavoris } from "./supabase.js";
+import { upsertRating, toggleFavori, fetchFavoris, fetchRatings } from "./supabase.js";
 import { MANCHE_TAILLE, SEUIL_ANALYSE_IA } from "./config.js";
 import { analyserPrenom } from "./ia.js";
 
@@ -27,8 +27,20 @@ function countdown() {
 async function startRound() {
   await countdown();
   const cat = await loadCatalog();
-  const round = pickRound(cat, MANCHE_TAILLE);
   const parent = getParent();
+  // Exclure les prénoms déjà notés par le joueur courant : ils ne reviennent pas.
+  let rated = new Set();
+  try {
+    const rows = await fetchRatings();
+    rated = new Set(rows.filter(r => r.parent === parent).map(r => r.prenom));
+  } catch (e) { console.warn(e); }
+  const available = cat.filter(p => !rated.has(p.prenom));
+  if (!available.length) {
+    el().innerHTML = `<div class="card" style="text-align:center">🎉 Tu as noté tous les prénoms !
+      Va voir le 🏆 Top ou fais des ⚔️ Duels.</div>`;
+    return;
+  }
+  const round = pickRound(available, MANCHE_TAILLE);
   el().innerHTML = `<h2>Note ces prénoms</h2><div id="round"></div>
     <button class="btn" id="rejouer">🔄 Nouvelle manche</button>`;
   const wrap = el().querySelector("#round");
