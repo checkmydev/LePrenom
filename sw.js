@@ -1,7 +1,8 @@
-const CACHE = "leprenom-v15";
+const CACHE = "leprenom-v16";
 const ASSETS = [
   "./", "./index.html", "./css/styles.css", "./manifest.json",
   "./data/prenoms.json",
+  "./icons/icon-192.png", "./icons/icon-512.png",
   "./js/app.js", "./js/config.js", "./js/catalog.js", "./js/stars.js",
   "./js/profile.js", "./js/game.js", "./js/duel.js", "./js/elo.js",
   "./js/dashboard.js", "./js/aggregate.js", "./js/favoris.js",
