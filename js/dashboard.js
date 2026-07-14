@@ -1,6 +1,7 @@
 import { fetchRatings, upsertRating } from "./supabase.js";
 import { adjustedRanking, coupsDeCoeur, topByParent } from "./aggregate.js";
 import { getParent, labelParent } from "./profile.js";
+import { loadCatalog } from "./catalog.js";
 import { renderStars } from "./stars.js";
 import { SEUIL_COUP_DE_COEUR } from "./config.js";
 
@@ -16,6 +17,22 @@ export async function initDashboard() {
     el().innerHTML = `<div class="card">⚠️ Impossible de charger les notes : ${e.message}</div>`;
     return;
   }
+  const total = (await loadCatalog()).length;
+  const nbMaman = rows.filter(r => r.parent === "maman").length;
+  const nbPapa = rows.filter(r => r.parent === "papa").length;
+  const pct = (n) => total ? Math.round((n / total) * 1000) / 10 : 0;
+  const kpi = (emoji, label, n) => {
+    const p = pct(n);
+    return `<div class="card" style="flex:1; min-width:150px; text-align:center">
+      <div>${emoji} ${label}</div>
+      <div style="font-size:1.5rem; font-weight:800; color:var(--violet)">${p}%</div>
+      <small>${n} / ${total} prénoms notés</small>
+      <div style="height:6px; background:#eee; border-radius:4px; margin-top:6px; overflow:hidden">
+        <div style="height:100%; width:${Math.max(p, p > 0 ? 1 : 0)}%; background:var(--violet)"></div>
+      </div>
+    </div>`;
+  };
+
   const top = adjustedRanking(rows).slice(0, 10);
   const coeurs = coupsDeCoeur(rows, SEUIL_COUP_DE_COEUR);
   const topMaman = topByParent(rows, "maman", 10);
@@ -31,6 +48,12 @@ export async function initDashboard() {
   const par = (prenom, p) => notes[prenom]?.[p] ?? "—";
 
   el().innerHTML = `
+    <h2>📊 Progression</h2>
+    <div style="display:flex; gap:12px; flex-wrap:wrap">
+      ${kpi("👩", "Maman", nbMaman)}
+      ${kpi("👨", "Papa", nbPapa)}
+    </div>
+
     <h2>🏆 Top 10</h2>
     <p style="color:#6b21a8; font-size:.85rem; margin-top:-4px">
       Score ajusté : recentré sur la moyenne de chaque parent, pour comparer des échelles différentes (Papa/Maman).</p>
