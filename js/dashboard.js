@@ -15,13 +15,20 @@ export async function initDashboard() {
   }
   const top = aggregate(rows).slice(0, 10);
   const coeurs = coupsDeCoeur(rows, SEUIL_COUP_DE_COEUR);
+  // Détail des notes par parent, par prénom
+  const notes = {};
+  for (const r of rows) (notes[r.prenom] ||= {})[r.parent] = r.note;
+  const par = (prenom, p) => notes[prenom]?.[p] ?? "—";
   el().innerHTML = `
     <h2>🏆 Top 10</h2>
     ${top.length ? top.map((t, i) => `
-      <div class="card" style="display:flex; justify-content:space-between; align-items:center">
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:8px">
         <span><b>${i + 1}.</b> <a href="#" data-prenom="${t.prenom}" data-sexe="${t.sexe||''}">${t.prenom}</a>
           <span class="badge-sexe ${t.sexe||''}">${t.sexe==='f'?'fille':t.sexe==='m'?'garçon':''}</span></span>
-        <b>${t.moyenne}/10</b> <small>(${t.nb} note${t.nb>1?'s':''})</small>
+        <span style="text-align:right; white-space:nowrap">
+          <b>${t.moyenne}/10</b><br>
+          <small>👩 ${par(t.prenom,'maman')} · 👨 ${par(t.prenom,'papa')}</small>
+        </span>
       </div>`).join("") : `<div class="card">Aucune note pour l'instant.</div>`}
     <h2>💞 Coups de cœur communs</h2>
     ${coeurs.length ? coeurs.map(c => `
