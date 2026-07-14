@@ -1,7 +1,7 @@
 import { loadCatalog, pickRound } from "./catalog.js";
 import { renderStars } from "./stars.js";
 import { getParent } from "./profile.js";
-import { upsertRating, toggleFavori } from "./supabase.js";
+import { upsertRating, toggleFavori, fetchFavoris } from "./supabase.js";
 import { MANCHE_TAILLE, SEUIL_ANALYSE_IA } from "./config.js";
 import { analyserPrenom } from "./ia.js";
 
@@ -59,6 +59,18 @@ async function startRound() {
         }
       },
     });
+    const heart = document.createElement("button");
+    heart.className = "btn secondary";
+    heart.style.cssText = "padding:6px 12px; margin-top:8px";
+    heart.textContent = "🤍 Favori";
+    let fav = false;
+    heart.addEventListener("click", async () => {
+      fav = !fav;
+      heart.textContent = fav ? "❤️ Favori" : "🤍 Favori";
+      try { await toggleFavori(p.prenom, parent, fav); }
+      catch (e) { heart.textContent = "⚠️"; console.warn(e); }
+    });
+    card.appendChild(heart);
     wrap.appendChild(card);
   }
   el().querySelector("#rejouer").addEventListener("click", startRound);

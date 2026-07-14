@@ -3,10 +3,11 @@ import { initJeu } from "./game.js";
 import { initFiche, openFiche } from "./fiche.js";
 import { initDuel } from "./duel.js";
 import { initDashboard } from "./dashboard.js";
+import { initFavoris } from "./favoris.js";
 
 const screens = ["accueil","jeu","duel","dashboard","favoris","fiche"];
 
-const inits = { jeu: initJeu, fiche: initFiche, duel: initDuel, dashboard: initDashboard };
+const inits = { jeu: initJeu, fiche: initFiche, duel: initDuel, dashboard: initDashboard, favoris: initFavoris };
 export function show(name) {
   for (const s of screens) {
     document.getElementById(`screen-${s}`).classList.toggle("hidden", s !== name);
