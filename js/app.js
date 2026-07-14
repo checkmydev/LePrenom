@@ -1,13 +1,16 @@
 import { getParent, setParent, labelParent } from "./profile.js";
+import { initJeu } from "./game.js";
 
 const screens = ["accueil","jeu","duel","dashboard","favoris","fiche"];
 
+const inits = { jeu: initJeu };
 export function show(name) {
   for (const s of screens) {
     document.getElementById(`screen-${s}`).classList.toggle("hidden", s !== name);
   }
   document.querySelectorAll("#tabbar a").forEach(a =>
     a.classList.toggle("active", a.getAttribute("href") === `#${name}`));
+  if (inits[name]) inits[name]();
 }
 
 function route() {
