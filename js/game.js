@@ -43,22 +43,23 @@ async function startRound() {
       <div class="rate"></div>
       <div class="ia-slot" style="margin-top:8px; color:#6b21a8; font-size:.9rem"></div>`;
     const slot = card.querySelector(".ia-slot");
-    renderStars(card.querySelector(".rate"), {
-      onRate: async (note) => {
-        try {
-          await upsertRating({ prenom: p.prenom, sexe: p.sexe, parent, note });
-          slot.textContent = "✔️ Noté " + note + "/10";
-          if (note > SEUIL_ANALYSE_IA) {
-            slot.textContent = "✨ Analyse du prénom en cours…";
-            const a = await analyserPrenom(p.prenom, p.sexe);
-            slot.innerHTML = `✨ <b>${p.prenom}</b> : ${a.signification || ""}
-              <a href="#fiche" data-prenom="${p.prenom}">voir la fiche →</a>`;
-          }
-        } catch (e) {
-          slot.textContent = "⚠️ Erreur : " + e.message;
+    const rateEl = card.querySelector(".rate");
+    const onRate = async (note) => {
+      renderStars(rateEl, { value: note, onRate }); // garde les étoiles remplies
+      try {
+        await upsertRating({ prenom: p.prenom, sexe: p.sexe, parent, note });
+        slot.textContent = "✔️ Noté " + note + "/10";
+        if (note > SEUIL_ANALYSE_IA) {
+          slot.textContent = "✨ Analyse du prénom en cours…";
+          const a = await analyserPrenom(p.prenom, p.sexe);
+          slot.innerHTML = `✨ <b>${p.prenom}</b> : ${a.signification || ""}
+            <a href="#fiche" data-prenom="${p.prenom}" data-sexe="${p.sexe}">voir la fiche →</a>`;
         }
-      },
-    });
+      } catch (e) {
+        slot.textContent = "⚠️ Erreur : " + e.message;
+      }
+    };
+    renderStars(rateEl, { onRate });
     const heart = document.createElement("button");
     heart.className = "btn secondary";
     heart.style.cssText = "padding:6px 12px; margin-top:8px";

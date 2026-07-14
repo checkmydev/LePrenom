@@ -5,7 +5,13 @@ const el = () => document.getElementById("screen-favoris");
 
 export async function initFavoris() {
   el().innerHTML = `<div class="card">Chargement…</div>`;
-  const rows = await fetchFavoris();
+  let rows;
+  try {
+    rows = await fetchFavoris();
+  } catch (e) {
+    el().innerHTML = `<div class="card">⚠️ Impossible de charger les favoris : ${e.message}</div>`;
+    return;
+  }
   const mine = rows.filter(r => r.parent === getParent());
   el().innerHTML = `<h2>❤️ Ma short-list</h2>
     ${mine.length ? mine.map(f => `

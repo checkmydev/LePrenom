@@ -6,7 +6,13 @@ const el = () => document.getElementById("screen-dashboard");
 
 export async function initDashboard() {
   el().innerHTML = `<div class="card">Chargement…</div>`;
-  const rows = await fetchRatings();
+  let rows;
+  try {
+    rows = await fetchRatings();
+  } catch (e) {
+    el().innerHTML = `<div class="card">⚠️ Impossible de charger les notes : ${e.message}</div>`;
+    return;
+  }
   const top = aggregate(rows).slice(0, 10);
   const coeurs = coupsDeCoeur(rows, SEUIL_COUP_DE_COEUR);
   el().innerHTML = `

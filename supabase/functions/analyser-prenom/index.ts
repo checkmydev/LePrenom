@@ -37,16 +37,27 @@ Deno.serve(async (req) => {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-5",
-        max_tokens: 700,
+        // Haiku 4.5 : rapide et économique, raisonnement désactivé par défaut
+        // (pas de bloc "thinking" en tête de réponse à contourner).
+        model: "claude-haiku-4-5",
+        max_tokens: 1024,
         messages: [{ role: "user", content: prompt }],
       }),
     });
     const ai = await aiRes.json();
-    const text = ai?.content?.[0]?.text ?? "{}";
+    // N'appelle pas / ne met pas en cache un échec Anthropic (sinon fiches vides définitives).
+    if (!aiRes.ok) return json({ error: "anthropic", detail: ai }, 502);
+
+    // Récupère le bloc de type "text" (Sonnet peut renvoyer d'autres blocs en premier).
+    const text = ai?.content?.find((b: { type?: string }) => b?.type === "text")?.text ?? "";
     let parsed;
     try { parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] ?? text); }
     catch { parsed = { signification: text, description: "", jeux_de_mots: "", compat_gerard: "" }; }
+
+    // Ne met en cache que si l'IA a produit un contenu exploitable.
+    if (!parsed.signification && !parsed.description && !parsed.compat_gerard) {
+      return json({ error: "réponse IA vide", detail: text }, 502);
+    }
 
     const row = {
       prenom, sexe: sexe ?? null,

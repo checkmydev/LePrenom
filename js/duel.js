@@ -45,7 +45,12 @@ async function nextPair() {
 export async function initDuel() {
   if (!getParent()) { location.hash = "#accueil"; return; }
   el().innerHTML = `<div class="card">Chargement…</div>`;
-  const rows = await fetchElo();
-  eloMap = new Map(rows.map(r => [r.prenom, r.score]));
+  try {
+    const rows = await fetchElo();
+    eloMap = new Map(rows.map(r => [r.prenom, r.score]));
+  } catch (e) {
+    el().innerHTML = `<div class="card">⚠️ Impossible de charger les duels : ${e.message}</div>`;
+    return;
+  }
   nextPair();
 }

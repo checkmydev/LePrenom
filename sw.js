@@ -1,4 +1,4 @@
-const CACHE = "leprenom-v1";
+const CACHE = "leprenom-v2";
 const ASSETS = [
   "./", "./index.html", "./css/styles.css", "./manifest.json",
   "./data/prenoms.json",
@@ -17,7 +17,20 @@ self.addEventListener("activate", (e) => {
 });
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
-  // Réseau d'abord pour Supabase (API/functions), cache d'abord pour le reste
-  if (url.host.includes("supabase.co") || url.host.includes("esm.sh")) return;
+  // Supabase (API/Edge Functions) : toujours le réseau, jamais de cache (données live).
+  if (url.host.includes("supabase.co")) return;
+  // esm.sh (lib Supabase et ses dépendances) : cache runtime pour permettre
+  // le démarrage hors-ligne après un premier chargement en ligne.
+  if (url.host.includes("esm.sh")) {
+    e.respondWith(
+      caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
+        const copy = resp.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy));
+        return resp;
+      }).catch(() => caches.match(e.request)))
+    );
+    return;
+  }
+  // App-shell et assets locaux : cache d'abord, réseau en secours.
   e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });
