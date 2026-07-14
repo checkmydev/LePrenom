@@ -2,10 +2,11 @@ import { getParent, setParent, labelParent } from "./profile.js";
 import { initJeu } from "./game.js";
 import { initFiche, openFiche } from "./fiche.js";
 import { initDuel } from "./duel.js";
+import { initDashboard } from "./dashboard.js";
 
 const screens = ["accueil","jeu","duel","dashboard","favoris","fiche"];
 
-const inits = { jeu: initJeu, fiche: initFiche, duel: initDuel };
+const inits = { jeu: initJeu, fiche: initFiche, duel: initDuel, dashboard: initDashboard };
 export function show(name) {
   for (const s of screens) {
     document.getElementById(`screen-${s}`).classList.toggle("hidden", s !== name);
