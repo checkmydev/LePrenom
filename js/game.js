@@ -28,19 +28,24 @@ async function startRound() {
   await countdown();
   const cat = await loadCatalog();
   const parent = getParent();
-  // Exclure les prénoms déjà notés par le joueur courant : ils ne reviennent pas.
-  let rated = new Set();
-  try {
-    const rows = await fetchRatings();
-    rated = new Set(rows.filter(r => r.parent === parent).map(r => r.prenom));
-  } catch (e) { console.warn(e); }
+  const other = parent === "maman" ? "papa" : "maman";
+  let allRows = [];
+  try { allRows = await fetchRatings(); } catch (e) { console.warn(e); }
+  // Prénoms déjà notés par le joueur courant : exclus (ils ne reviennent pas).
+  const rated = new Set(allRows.filter(r => r.parent === parent).map(r => r.prenom));
+  // Prénoms notés par l'AUTRE parent : à faire remonter en priorité pour compléter le consensus.
+  const otherRated = new Set(allRows.filter(r => r.parent === other).map(r => r.prenom));
   const available = cat.filter(p => !rated.has(p.prenom));
   if (!available.length) {
     el().innerHTML = `<div class="card" style="text-align:center">🎉 Tu as noté tous les prénoms !
       Va voir le 🏆 Top ou fais des ⚔️ Duels.</div>`;
     return;
   }
-  const round = pickRound(available, MANCHE_TAILLE);
+  const priority = available.filter(p => otherRated.has(p.prenom)); // notés par l'autre, pas par toi
+  const rest = available.filter(p => !otherRated.has(p.prenom));
+  // Priorité d'abord, on complète ensuite avec des prénoms vierges.
+  const round = [...pickRound(priority, MANCHE_TAILLE), ...pickRound(rest, MANCHE_TAILLE)]
+    .slice(0, MANCHE_TAILLE);
   el().innerHTML = `<h2>Note ces prénoms</h2><div id="round"></div>
     <button class="btn" id="rejouer">🔄 Nouvelle manche</button>`;
   const wrap = el().querySelector("#round");
