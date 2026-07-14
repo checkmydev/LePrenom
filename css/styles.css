@@ -11,3 +11,13 @@ main { padding:16px; max-width:720px; margin:0 auto 80px; }
 #tabbar { position:fixed; bottom:0; left:0; right:0; display:flex; justify-content:space-around; background:#fff; border-top:1px solid #eee; padding:8px 0; }
 #tabbar a { text-decoration:none; color:var(--ink); font-size:.85rem; padding:6px 10px; border-radius:10px; }
 #tabbar a.active { background:var(--bg); color:var(--violet); font-weight:700; }
+.stars { display:inline-flex; gap:2px; cursor:pointer; font-size:1.5rem; }
+.star { color:#e5e7eb; transition:color .08s; }
+.star.on { color:var(--or); }
+.countdown { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; font-size:6rem; font-weight:800; color:var(--violet); background:rgba(255,255,255,.92); z-index:50; }
+@keyframes pop { 0%{transform:scale(.4);opacity:0} 60%{transform:scale(1.15);opacity:1} 100%{transform:scale(1)} }
+.countdown span { animation:pop .8s ease; }
+.prenom-nom { font-size:1.4rem; font-weight:700; }
+.badge-sexe { font-size:.8rem; padding:2px 8px; border-radius:999px; }
+.badge-sexe.f { background:#fce7f3; color:#be185d; }
+.badge-sexe.m { background:#dbeafe; color:#1d4ed8; }
