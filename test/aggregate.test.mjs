@@ -1,7 +1,7 @@
 // test/aggregate.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { aggregate, coupsDeCoeur } from "../js/aggregate.js";
+import { aggregate, coupsDeCoeur, adjustedRanking } from "../js/aggregate.js";
 
 const rows = [
   { prenom: "Léa", parent: "maman", note: 9, sexe: "f" },
@@ -20,4 +20,31 @@ test("aggregate calcule la moyenne et trie décroissant", () => {
 test("coupsDeCoeur = note >= seuil par les deux parents", () => {
   const c = coupsDeCoeur(rows, 7);
   assert.deepEqual(c.map(x => x.prenom), ["Léa"]);
+});
+
+test("adjustedRanking recentre chaque parent : une note = sa propre moyenne donne 5", () => {
+  // Maman moyenne 6, Papa moyenne 3 ; A et B notés pile à la moyenne de chacun
+  const r = [
+    { prenom: "A", parent: "maman", note: 6, sexe: "f" },
+    { prenom: "A", parent: "papa", note: 3, sexe: "f" },
+    { prenom: "B", parent: "maman", note: 6, sexe: "m" },
+    { prenom: "B", parent: "papa", note: 3, sexe: "m" },
+  ];
+  const a = adjustedRanking(r);
+  assert.equal(a.find(x => x.prenom === "A").score, 5);
+  assert.equal(a.find(x => x.prenom === "B").score, 5);
+});
+
+test("adjustedRanking : au-dessus de sa barre bat en-dessous, malgré les échelles", () => {
+  // Papa moyenne 3 (A=4,B=2), Maman moyenne 6 (A=7,B=5)
+  const r = [
+    { prenom: "A", parent: "maman", note: 7, sexe: "f" },
+    { prenom: "A", parent: "papa", note: 4, sexe: "f" },
+    { prenom: "B", parent: "maman", note: 5, sexe: "f" },
+    { prenom: "B", parent: "papa", note: 2, sexe: "f" },
+  ];
+  const a = adjustedRanking(r);
+  assert.equal(a[0].prenom, "A");
+  assert.equal(a[0].score, 6); // (7-6+5 + 4-3+5)/2 = (6+6)/2
+  assert.equal(a[1].score, 4); // (5-6+5 + 2-3+5)/2 = (4+4)/2
 });
