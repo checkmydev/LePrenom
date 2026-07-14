@@ -1,5 +1,5 @@
 import { fetchRatings, upsertRating } from "./supabase.js";
-import { adjustedRanking, coupsDeCoeur } from "./aggregate.js";
+import { adjustedRanking, coupsDeCoeur, topByParent } from "./aggregate.js";
 import { getParent, labelParent } from "./profile.js";
 import { renderStars } from "./stars.js";
 import { SEUIL_COUP_DE_COEUR } from "./config.js";
@@ -18,6 +18,13 @@ export async function initDashboard() {
   }
   const top = adjustedRanking(rows).slice(0, 10);
   const coeurs = coupsDeCoeur(rows, SEUIL_COUP_DE_COEUR);
+  const topMaman = topByParent(rows, "maman", 10);
+  const topPapa = topByParent(rows, "papa", 10);
+  const colonne = (list) => list.length
+    ? list.map((t, i) => `<div style="display:flex; justify-content:space-between; gap:6px">
+        <span>${i + 1}. <a href="#" data-prenom="${t.prenom}" data-sexe="${t.sexe||''}">${t.prenom}</a></span>
+        <b style="color:var(--or)">${t.note}</b></div>`).join("")
+    : `<div style="color:#9ca3af">Aucune note</div>`;
   // Détail des notes par parent, par prénom
   const notes = {};
   for (const r of rows) (notes[r.prenom] ||= {})[r.parent] = r.note;
@@ -44,6 +51,17 @@ export async function initDashboard() {
           <span class="rate-top" data-prenom="${t.prenom}" data-sexe="${t.sexe||''}"></span></div>` : ""}
       </div>`;
     }).join("") : `<div class="card">Aucune note pour l'instant.</div>`}
+
+    <h2>👩 vs 👨 — Le top de chacun</h2>
+    <div style="display:flex; gap:12px; flex-wrap:wrap">
+      <div style="flex:1; min-width:150px"><div class="card">
+        <b>👩 Top Maman</b><div style="margin-top:6px">${colonne(topMaman)}</div>
+      </div></div>
+      <div style="flex:1; min-width:150px"><div class="card">
+        <b>👨 Top Papa</b><div style="margin-top:6px">${colonne(topPapa)}</div>
+      </div></div>
+    </div>
+
     <h2>💞 Coups de cœur communs</h2>
     ${coeurs.length ? coeurs.map(c => `
       <div class="card">

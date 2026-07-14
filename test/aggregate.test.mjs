@@ -1,7 +1,7 @@
 // test/aggregate.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { aggregate, coupsDeCoeur, adjustedRanking } from "../js/aggregate.js";
+import { aggregate, coupsDeCoeur, adjustedRanking, topByParent } from "../js/aggregate.js";
 
 const rows = [
   { prenom: "Léa", parent: "maman", note: 9, sexe: "f" },
@@ -33,6 +33,19 @@ test("adjustedRanking recentre chaque parent : une note = sa propre moyenne donn
   const a = adjustedRanking(r);
   assert.equal(a.find(x => x.prenom === "A").score, 5);
   assert.equal(a.find(x => x.prenom === "B").score, 5);
+});
+
+test("topByParent : uniquement les notes du parent, triées décroissant", () => {
+  const r = [
+    { prenom: "Léa", parent: "maman", note: 9, sexe: "f" },
+    { prenom: "Tom", parent: "maman", note: 6, sexe: "m" },
+    { prenom: "Zoé", parent: "maman", note: 9, sexe: "f" },
+    { prenom: "Léa", parent: "papa", note: 3, sexe: "f" },
+  ];
+  const maman = topByParent(r, "maman");
+  assert.deepEqual(maman.map(x => x.prenom), ["Léa", "Zoé", "Tom"]); // 9,9 (alpha),6
+  const papa = topByParent(r, "papa");
+  assert.deepEqual(papa.map(x => `${x.prenom}:${x.note}`), ["Léa:3"]);
 });
 
 test("adjustedRanking : au-dessus de sa barre bat en-dessous, malgré les échelles", () => {
