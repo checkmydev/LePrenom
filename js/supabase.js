@@ -13,10 +13,25 @@ export async function upsertRating({ prenom, sexe, parent, note }) {
   if (error) throw error;
 }
 
+// Supabase limite chaque requête à 1000 lignes : on pagine pour tout récupérer.
+async function fetchAll(table, columns = "*") {
+  const pageSize = 1000;
+  let from = 0;
+  const all = [];
+  for (;;) {
+    const { data, error } = await sb.from(table).select(columns)
+      .order("id", { ascending: true })
+      .range(from, from + pageSize - 1);
+    if (error) throw error;
+    all.push(...data);
+    if (!data || data.length < pageSize) break;
+    from += pageSize;
+  }
+  return all;
+}
+
 export async function fetchRatings() {
-  const { data, error } = await sb.from("ratings").select("*");
-  if (error) throw error;
-  return data;
+  return fetchAll("ratings");
 }
 
 // --- Favoris ---
@@ -32,9 +47,7 @@ export async function toggleFavori(prenom, parent, on) {
 }
 
 export async function fetchFavoris() {
-  const { data, error } = await sb.from("favoris").select("*");
-  if (error) throw error;
-  return data;
+  return fetchAll("favoris");
 }
 
 // --- ELO / duels ---
