@@ -71,7 +71,7 @@ export async function initDashboard() {
         </div>
         ${mineMissing ? `<div class="rate-row" style="margin-top:8px; font-size:.85rem">
           Ta note (${labelParent(parent)}) :
-          <span class="rate-top" data-prenom="${t.prenom}" data-sexe="${t.sexe||''}"></span></div>` : ""}
+          <span class="rate-top" data-rp="${t.prenom}" data-rs="${t.sexe||''}"></span></div>` : ""}
       </div>`;
     }).join("") : `<div class="card">Aucune note pour l'instant.</div>`}
 
@@ -99,7 +99,7 @@ export async function initDashboard() {
     renderStars(sp, {
       onRate: async (note) => {
         try {
-          await upsertRating({ prenom: sp.dataset.prenom, sexe: sp.dataset.sexe, parent, note });
+          await upsertRating({ prenom: sp.dataset.rp, sexe: sp.dataset.rs, parent, note });
           initDashboard(); // rafraîchit le classement et le détail
         } catch (e) {
           sp.parentElement.innerHTML = "⚠️ " + e.message;
