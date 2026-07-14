@@ -35,8 +35,8 @@ export async function initDashboard() {
 
   const top = adjustedRanking(rows).slice(0, 10);
   const coeurs = coupsDeCoeur(rows, SEUIL_COUP_DE_COEUR);
-  const topMaman = topByParent(rows, "maman", 10);
-  const topPapa = topByParent(rows, "papa", 10);
+  const topMaman = topByParent(rows, "maman", 100);
+  const topPapa = topByParent(rows, "papa", 100);
   const colonne = (list) => list.length
     ? list.map((t, i) => `<div style="display:flex; justify-content:space-between; gap:6px">
         <span>${i + 1}. <a href="#" data-prenom="${t.prenom}" data-sexe="${t.sexe||''}">${t.prenom}</a></span>
@@ -75,13 +75,15 @@ export async function initDashboard() {
       </div>`;
     }).join("") : `<div class="card">Aucune note pour l'instant.</div>`}
 
-    <h2>👩 vs 👨 — Le top de chacun</h2>
+    <h2>👩 vs 👨 — Le top 100 de chacun</h2>
     <div style="display:flex; gap:12px; flex-wrap:wrap">
       <div style="flex:1; min-width:150px"><div class="card">
-        <b>👩 Top Maman</b><div style="margin-top:6px">${colonne(topMaman)}</div>
+        <b>👩 Top Maman</b> <small>(${topMaman.length})</small>
+        <div style="margin-top:6px; max-height:420px; overflow-y:auto">${colonne(topMaman)}</div>
       </div></div>
       <div style="flex:1; min-width:150px"><div class="card">
-        <b>👨 Top Papa</b><div style="margin-top:6px">${colonne(topPapa)}</div>
+        <b>👨 Top Papa</b> <small>(${topPapa.length})</small>
+        <div style="margin-top:6px; max-height:420px; overflow-y:auto">${colonne(topPapa)}</div>
       </div></div>
     </div>
 
