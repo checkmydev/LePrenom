@@ -1,4 +1,14 @@
-// Stub temporaire — remplacé par l'implémentation réelle (Impl 3 / Task 11).
+import { SUPABASE_URL, SUPABASE_ANON } from "./config.js";
+
+const FN = `${SUPABASE_URL}/functions/v1/analyser-prenom`;
+
 export async function analyserPrenom(prenom, sexe) {
-  throw new Error("Analyse IA pas encore disponible (Edge Function non déployée).");
+  const res = await fetch(FN, {
+    method: "POST",
+    headers: { "content-type": "application/json", "authorization": `Bearer ${SUPABASE_ANON}` },
+    body: JSON.stringify({ prenom, sexe }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
 }

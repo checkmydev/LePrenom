@@ -1,9 +1,10 @@
 import { getParent, setParent, labelParent } from "./profile.js";
 import { initJeu } from "./game.js";
+import { initFiche, openFiche } from "./fiche.js";
 
 const screens = ["accueil","jeu","duel","dashboard","favoris","fiche"];
 
-const inits = { jeu: initJeu };
+const inits = { jeu: initJeu, fiche: initFiche };
 export function show(name) {
   for (const s of screens) {
     document.getElementById(`screen-${s}`).classList.toggle("hidden", s !== name);
@@ -43,6 +44,11 @@ function refreshWho() {
   document.getElementById("who").textContent = p ? labelParent(p) : "";
   document.getElementById("tabbar").classList.toggle("hidden", !p);
 }
+
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("[data-prenom]");
+  if (a) { e.preventDefault(); openFiche(a.dataset.prenom, a.dataset.sexe); }
+});
 
 window.addEventListener("hashchange", route);
 window.addEventListener("DOMContentLoaded", () => {
