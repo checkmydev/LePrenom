@@ -1,0 +1,13 @@
+:root { --violet:#7c3aed; --violet2:#a78bfa; --bg:#faf7ff; --card:#fff; --ink:#1f2937; --or:#fbbf24; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+#topbar { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--violet); color:#fff; position:sticky; top:0; }
+#brand { font-weight:700; }
+main { padding:16px; max-width:720px; margin:0 auto 80px; }
+.screen.hidden, .hidden { display:none; }
+.btn { display:inline-flex; align-items:center; gap:8px; border:0; border-radius:14px; padding:14px 22px; font-size:1rem; font-weight:600; background:var(--violet); color:#fff; cursor:pointer; }
+.btn.secondary { background:var(--violet2); }
+.card { background:var(--card); border-radius:16px; padding:16px; margin:12px 0; box-shadow:0 2px 10px rgba(124,58,237,.08); }
+#tabbar { position:fixed; bottom:0; left:0; right:0; display:flex; justify-content:space-around; background:#fff; border-top:1px solid #eee; padding:8px 0; }
+#tabbar a { text-decoration:none; color:var(--ink); font-size:.85rem; padding:6px 10px; border-radius:10px; }
+#tabbar a.active { background:var(--bg); color:var(--violet); font-weight:700; }

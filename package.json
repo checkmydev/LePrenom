@@ -1,0 +1,11 @@
+{
+  "name": "leprenom",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build:prenoms": "node scripts/build-prenoms.mjs",
+    "test": "node --test",
+    "serve": "npx --yes serve@14 -l 5000 ."
+  }
+}
