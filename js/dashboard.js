@@ -35,8 +35,8 @@ export async function initDashboard() {
 
   const top = adjustedRanking(rows).slice(0, 10);
   const coeurs = coupsDeCoeur(rows, SEUIL_COUP_DE_COEUR);
-  const topMaman = topByParent(rows, "maman", 100);
-  const topPapa = topByParent(rows, "papa", 100);
+  const topMaman = topByParent(rows, "maman", 3); // toutes les notes > 3
+  const topPapa = topByParent(rows, "papa", 3);
   const colonne = (list) => list.length
     ? list.map((t, i) => `<div style="display:flex; justify-content:space-between; gap:6px">
         <span>${i + 1}. <a href="#" data-prenom="${t.prenom}" data-sexe="${t.sexe||''}">${t.prenom}</a></span>
@@ -75,7 +75,7 @@ export async function initDashboard() {
       </div>`;
     }).join("") : `<div class="card">Aucune note pour l'instant.</div>`}
 
-    <h2>👩 vs 👨 — Le top 100 de chacun</h2>
+    <h2>👩 vs 👨 — Le top de chacun <small style="font-weight:400">(notes > 3)</small></h2>
     <div style="display:flex; gap:12px; flex-wrap:wrap">
       <div style="flex:1; min-width:150px"><div class="card">
         <b>👩 Top Maman</b> <small>(${topMaman.length})</small>

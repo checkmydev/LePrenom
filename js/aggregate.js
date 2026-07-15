@@ -35,10 +35,11 @@ export function adjustedRanking(rows) {
     .sort((a, b) => b.score - a.score || b.nb - a.nb);
 }
 
-// Top personnel d'un parent : ses prénoms classés par SA propre note (décroissant).
-export function topByParent(rows, parent, limit = 10) {
+// Top personnel d'un parent : ses prénoms notés strictement au-dessus de `min`,
+// classés par SA propre note (décroissant).
+export function topByParent(rows, parent, min = 0, limit = Infinity) {
   return rows
-    .filter(r => r.parent === parent)
+    .filter(r => r.parent === parent && r.note > min)
     .map(r => ({ prenom: r.prenom, sexe: r.sexe, note: r.note }))
     .sort((a, b) => b.note - a.note || a.prenom.localeCompare(b.prenom))
     .slice(0, limit);

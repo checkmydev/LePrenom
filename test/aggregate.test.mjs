@@ -48,6 +48,15 @@ test("topByParent : uniquement les notes du parent, triées décroissant", () =>
   assert.deepEqual(papa.map(x => `${x.prenom}:${x.note}`), ["Léa:3"]);
 });
 
+test("topByParent : filtre les notes <= min", () => {
+  const r = [
+    { prenom: "A", parent: "papa", note: 5, sexe: "m" },
+    { prenom: "B", parent: "papa", note: 3, sexe: "m" },
+    { prenom: "C", parent: "papa", note: 2, sexe: "m" },
+  ];
+  assert.deepEqual(topByParent(r, "papa", 3).map(x => x.prenom), ["A"]); // seul > 3
+});
+
 test("adjustedRanking : au-dessus de sa barre bat en-dessous, malgré les échelles", () => {
   // Papa moyenne 3 (A=4,B=2), Maman moyenne 6 (A=7,B=5)
   const r = [
