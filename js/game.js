@@ -105,6 +105,7 @@ async function startRound() {
     wrap.appendChild(card);
   }
   el().querySelector("#rejouer").addEventListener("click", startRound);
+  window.scrollTo(0, 0); // démarrer en haut, pas après avoir scrollé
 }
 
 export async function initJeu() {
