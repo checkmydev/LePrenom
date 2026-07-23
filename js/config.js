@@ -4,5 +4,19 @@ export const NOM_FAMILLE = "Gerard";
 export const SEUIL_ANALYSE_IA = 7;       // note > 7
 export const SEUIL_COUP_DE_COEUR = 7;    // note >= 7 par les deux parents
 export const MANCHE_TAILLE = 10;
+
+// Origines / nationalités supposées (classification heuristique au build).
+export const ORIGINES = [
+  "Française",
+  "Anglo-saxonne",
+  "Arabe/Maghreb",
+  "Africaine",
+  "Latine",
+  "Slave/Europe de l'Est",
+  "Nordique",
+  "Hébraïque/biblique",
+  "Asiatique",
+  "Autre",
+];
 export const ELO_K = 32;
 export const ELO_DEFAUT = 1000;

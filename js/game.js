@@ -4,6 +4,7 @@ import { getParent } from "./profile.js";
 import { upsertRating, toggleFavori, fetchFavoris, fetchRatings } from "./supabase.js";
 import { MANCHE_TAILLE, SEUIL_ANALYSE_IA } from "./config.js";
 import { analyserPrenom } from "./ia.js";
+import { getOrigine, setOrigine } from "./settings.js";
 
 const el = () => document.getElementById("screen-jeu");
 
@@ -26,7 +27,13 @@ function countdown() {
 
 async function startRound() {
   await countdown();
-  const cat = await loadCatalog();
+  // Filles uniquement, filtrées par l'origine sélectionnée.
+  const origine = getOrigine();
+  let cat = (await loadCatalog()).filter(p => p.sexe === "f");
+  if (origine !== "Toutes") {
+    const f = cat.filter(p => p.origine === origine);
+    if (f.length) cat = f; // garde-fou si l'origine n'existe pas dans les données
+  }
   const parent = getParent();
   const other = parent === "maman" ? "papa" : "maman";
   let allRows = [];
@@ -99,10 +106,19 @@ async function startRound() {
   el().querySelector("#rejouer").addEventListener("click", startRound);
 }
 
-export function initJeu() {
+export async function initJeu() {
   const parent = getParent();
   if (!parent) { location.hash = "#accueil"; return; }
+  const cat = (await loadCatalog()).filter(p => p.sexe === "f");
+  const present = [...new Set(cat.map(p => p.origine).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const cur = getOrigine();
+  const opts = ["Toutes", ...present]
+    .map(o => `<option value="${o}"${o === cur ? " selected" : ""}>${o}</option>`).join("");
   el().innerHTML = `<div class="card" style="text-align:center">
-      <h2>Prêt·e ?</h2><button class="btn" id="go">▶️ GO</button></div>`;
+      <h2>Prêt·e ?</h2>
+      <p style="margin:8px 0">Origine des prénoms :<br>
+        <select id="origine" style="margin-top:6px; padding:8px 10px; border-radius:10px; border:1px solid #ddd; font-size:1rem">${opts}</select></p>
+      <button class="btn" id="go">▶️ GO</button></div>`;
+  el().querySelector("#origine").addEventListener("change", (e) => setOrigine(e.target.value));
   el().querySelector("#go").addEventListener("click", startRound);
 }

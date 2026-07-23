@@ -17,7 +17,8 @@ export async function initDashboard() {
     el().innerHTML = `<div class="card">⚠️ Impossible de charger les notes : ${e.message}</div>`;
     return;
   }
-  const total = (await loadCatalog()).length;
+  rows = rows.filter(r => r.sexe === "f"); // filles uniquement dans l'interface
+  const total = (await loadCatalog()).filter(p => p.sexe === "f").length;
   const nbMaman = rows.filter(r => r.parent === "maman").length;
   const nbPapa = rows.filter(r => r.parent === "papa").length;
   const pct = (n) => total ? Math.round((n / total) * 1000) / 10 : 0;

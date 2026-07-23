@@ -1,6 +1,8 @@
 import { getParent } from "./profile.js";
 import { fetchRatings, upsertRating } from "./supabase.js";
 import { aggregate } from "./aggregate.js";
+import { loadCatalog } from "./catalog.js";
+import { getOrigine } from "./settings.js";
 
 const el = () => document.getElementById("screen-duel");
 const TOP_N = 100;
@@ -80,8 +82,17 @@ export async function initDuel() {
     el().innerHTML = `<div class="card">⚠️ Impossible de charger les duels : ${e.message}</div>`;
     return;
   }
+  rows = rows.filter(r => r.sexe === "f"); // filles uniquement dans l'interface
+  const cat = await loadCatalog();
+  const origineOf = new Map(cat.map(p => [p.prenom, p.origine]));
+  const origine = getOrigine();
   const agg = aggregate(rows);                 // trié par moyenne décroissante
-  pool = agg.slice(0, TOP_N);
+  let ranked = agg;
+  if (origine !== "Toutes") {
+    const f = agg.filter(a => origineOf.get(a.prenom) === origine);
+    if (f.length) ranked = f; // garde-fou
+  }
+  pool = ranked.slice(0, TOP_N);
   avgNote = new Map(agg.map(a => [a.prenom, Math.round(a.moyenne)]));
   playerNote = new Map(rows.filter(r => r.parent === parent).map(r => [r.prenom, r.note]));
   nextPair();
