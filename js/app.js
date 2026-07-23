@@ -15,6 +15,7 @@ export function show(name) {
   }
   document.querySelectorAll("#tabbar a").forEach(a =>
     a.classList.toggle("active", a.getAttribute("href") === `#${name}`));
+  if (name === "accueil") renderAccueil(); // toujours à jour (famille/parent courants)
   if (inits[name]) inits[name]();
 }
 
@@ -78,8 +79,17 @@ document.addEventListener("click", (e) => {
   if (a) { e.preventDefault(); openFiche(a.dataset.prenom, a.dataset.sexe); }
 });
 
+// En-tête cliquable : retour à l'accueil (pour changer de famille / de profil).
+function goAccueil(e) { if (e) e.preventDefault(); location.hash = "#accueil"; }
+
 window.addEventListener("hashchange", route);
 window.addEventListener("DOMContentLoaded", () => {
+  const brand = document.getElementById("brand");
+  const who = document.getElementById("who");
+  brand.style.cursor = "pointer"; brand.title = "Accueil (changer de famille / profil)";
+  who.style.cursor = "pointer"; who.title = "Accueil (changer de famille / profil)";
+  brand.addEventListener("click", goAccueil);
+  who.addEventListener("click", goAccueil);
   renderAccueil();
   refreshWho();
   route();
