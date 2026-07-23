@@ -1,13 +1,16 @@
 import { fetchFavoris } from "./supabase.js";
 import { getParent } from "./profile.js";
+import { getFamille } from "./family.js";
 
 const el = () => document.getElementById("screen-favoris");
 
 export async function initFavoris() {
+  const famille = getFamille();
+  if (!famille) { location.hash = "#accueil"; return; }
   el().innerHTML = `<div class="card">Chargement…</div>`;
   let rows;
   try {
-    rows = await fetchFavoris();
+    rows = await fetchFavoris(famille);
   } catch (e) {
     el().innerHTML = `<div class="card">⚠️ Impossible de charger les favoris : ${e.message}</div>`;
     return;

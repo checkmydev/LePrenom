@@ -1,4 +1,4 @@
-const CACHE = "leprenom-v20";
+const CACHE = "leprenom-v21";
 const ASSETS = [
   "./", "./index.html", "./css/styles.css", "./manifest.json",
   "./data/prenoms.json",
@@ -7,6 +7,7 @@ const ASSETS = [
   "./js/profile.js", "./js/game.js", "./js/duel.js", "./js/elo.js",
   "./js/dashboard.js", "./js/aggregate.js", "./js/favoris.js",
   "./js/fiche.js", "./js/ia.js", "./js/supabase.js", "./js/settings.js",
+  "./js/family.js",
 ];
 
 self.addEventListener("install", (e) => {

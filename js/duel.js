@@ -3,11 +3,13 @@ import { fetchRatings, upsertRating } from "./supabase.js";
 import { aggregate } from "./aggregate.js";
 import { loadCatalog } from "./catalog.js";
 import { getOrigine } from "./settings.js";
+import { getFamille, sexeMatch } from "./family.js";
 
 const el = () => document.getElementById("screen-duel");
 const TOP_N = 100;
 
 let parent;      // joueur courant (maman/papa)
+let famille;     // espace famille courant
 let playerNote;  // Map prenom -> note actuelle du joueur courant
 let avgNote;     // Map prenom -> moyenne (2 parents) arrondie, sert de note de départ
 let pool;        // top-N agrégé : [{prenom, sexe, moyenne, nb}]
@@ -60,8 +62,8 @@ function nextPair() {
     playerNote.set(win.prenom, wNote);
     playerNote.set(lose.prenom, lNote);
     try {
-      await upsertRating({ prenom: win.prenom, sexe: win.sexe, parent, note: wNote });
-      await upsertRating({ prenom: lose.prenom, sexe: lose.sexe, parent, note: lNote });
+      await upsertRating({ prenom: win.prenom, sexe: win.sexe, parent, note: wNote, famille });
+      await upsertRating({ prenom: lose.prenom, sexe: lose.sexe, parent, note: lNote, famille });
     } catch (e) { console.warn(e); }
     nextPair();
   };
@@ -73,16 +75,17 @@ function nextPair() {
 
 export async function initDuel() {
   parent = getParent();
-  if (!parent) { location.hash = "#accueil"; return; }
+  famille = getFamille();
+  if (!parent || !famille) { location.hash = "#accueil"; return; }
   el().innerHTML = `<div class="card">Chargement…</div>`;
   let rows;
   try {
-    rows = await fetchRatings();
+    rows = await fetchRatings(famille);
   } catch (e) {
     el().innerHTML = `<div class="card">⚠️ Impossible de charger les duels : ${e.message}</div>`;
     return;
   }
-  rows = rows.filter(r => r.sexe === "f"); // filles uniquement dans l'interface
+  rows = rows.filter(sexeMatch(famille)); // selon le sexe réglé pour la famille
   const cat = await loadCatalog();
   const origineOf = new Map(cat.map(p => [p.prenom, p.origine]));
   const origine = getOrigine();

@@ -1,6 +1,7 @@
 import { fetchRatings, upsertRating } from "./supabase.js";
 import { adjustedRanking, coupsDeCoeur, topByParent } from "./aggregate.js";
 import { getParent, labelParent } from "./profile.js";
+import { getFamille, sexeMatch } from "./family.js";
 import { loadCatalog } from "./catalog.js";
 import { renderStars } from "./stars.js";
 import { SEUIL_COUP_DE_COEUR } from "./config.js";
@@ -9,16 +10,19 @@ const el = () => document.getElementById("screen-dashboard");
 
 export async function initDashboard() {
   const parent = getParent();
+  const famille = getFamille();
+  if (!famille) { location.hash = "#accueil"; return; }
   el().innerHTML = `<div class="card">Chargement…</div>`;
   let rows;
   try {
-    rows = await fetchRatings();
+    rows = await fetchRatings(famille);
   } catch (e) {
     el().innerHTML = `<div class="card">⚠️ Impossible de charger les notes : ${e.message}</div>`;
     return;
   }
-  rows = rows.filter(r => r.sexe === "f"); // filles uniquement dans l'interface
-  const catF = (await loadCatalog()).filter(p => p.sexe === "f");
+  const match = sexeMatch(famille);
+  rows = rows.filter(match); // selon le sexe réglé pour la famille
+  const catF = (await loadCatalog()).filter(match);
   const total = catF.length;
   const nbMaman = rows.filter(r => r.parent === "maman").length;
   const nbPapa = rows.filter(r => r.parent === "papa").length;
@@ -135,7 +139,7 @@ export async function initDashboard() {
     renderStars(sp, {
       onRate: async (note) => {
         try {
-          await upsertRating({ prenom: sp.dataset.rp, sexe: sp.dataset.rs, parent, note });
+          await upsertRating({ prenom: sp.dataset.rp, sexe: sp.dataset.rs, parent, note, famille });
           initDashboard(); // rafraîchit le classement et le détail
         } catch (e) {
           sp.parentElement.innerHTML = "⚠️ " + e.message;

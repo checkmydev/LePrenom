@@ -6,22 +6,26 @@ create table if not exists leprenom.ratings (
   sexe text check (sexe in ('f','m')),
   parent text not null check (parent in ('maman','papa')),
   note int not null check (note between 1 and 10),
+  famille text not null default 'gerard',
   updated_at timestamptz not null default now(),
-  unique (prenom, parent)
+  unique (prenom, parent, famille)
 );
 
 create table if not exists leprenom.favoris (
   id bigint generated always as identity primary key,
   prenom text not null,
   parent text not null check (parent in ('maman','papa')),
+  famille text not null default 'gerard',
   created_at timestamptz not null default now(),
-  unique (prenom, parent)
+  unique (prenom, parent, famille)
 );
 
 create table if not exists leprenom.elo (
-  prenom text primary key,
+  prenom text not null,
+  famille text not null default 'gerard',
   score int not null default 1000,
-  matches int not null default 0
+  matches int not null default 0,
+  primary key (prenom, famille)
 );
 
 create table if not exists leprenom.duel_results (
@@ -29,18 +33,21 @@ create table if not exists leprenom.duel_results (
   gagnant text not null,
   perdant text not null,
   parent text not null check (parent in ('maman','papa')),
+  famille text not null default 'gerard',
   created_at timestamptz not null default now()
 );
 
 create table if not exists leprenom.analyses (
-  prenom text primary key,
+  prenom text not null,
+  famille text not null default 'gerard',
   sexe text,
   signification text,
   description text,
   jeux_de_mots text,
   compat_gerard text,
   raw jsonb,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  primary key (prenom, famille)
 );
 
 -- Expose le schéma à l'API REST (à faire aussi dans Dashboard > API > Exposed schemas)
