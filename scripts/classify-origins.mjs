@@ -80,6 +80,8 @@ const PATTERNS = [
 ];
 
 export function classifyOrigine(prenom) {
+  // Prénom composé (trait d'union ou espace) : prioritaire sur toute origine.
+  if (/[-\s]/.test(String(prenom).trim())) return "Composé";
   const n = norm(prenom);
   if (n.length < 2) return "Autre";
   // 1) Listes curées (priorité), ordre du plus distinctif au moins

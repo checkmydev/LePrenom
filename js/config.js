@@ -16,6 +16,7 @@ export const ORIGINES = [
   "Nordique",
   "Hébraïque/biblique",
   "Asiatique",
+  "Composé",
   "Autre",
 ];
 export const ELO_K = 32;

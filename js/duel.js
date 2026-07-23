@@ -10,15 +10,14 @@ const TOP_N = 100;
 
 let parent;      // joueur courant (maman/papa)
 let famille;     // espace famille courant
-let playerNote;  // Map prenom -> note actuelle du joueur courant
-let avgNote;     // Map prenom -> moyenne (2 parents) arrondie, sert de note de départ
+let playerNote;  // Map prenom -> note du joueur courant UNIQUEMENT (pas de fuite entre parents)
 let pool;        // top-N agrégé : [{prenom, sexe, moyenne, nb}]
 
-// Note de départ pour le joueur : sa propre note, sinon la moyenne arrondie, sinon 5.
+// Note du joueur courant, ou null s'il n'a pas encore noté ce prénom.
 function currentNote(prenom) {
-  if (playerNote.has(prenom)) return playerNote.get(prenom);
-  return avgNote.get(prenom) ?? 5;
+  return playerNote.has(prenom) ? playerNote.get(prenom) : null;
 }
+const NEUTRE = 5; // point de départ neutre pour un prénom non encore noté par ce parent
 
 // Choisit une paire de prénoms DISTINCTS et DE MÊME GENRE dans le top-N.
 function pickSameGenderPair(rnd = Math.random) {
@@ -51,14 +50,16 @@ function nextPair() {
         <div class="card" style="flex:1; text-align:center; cursor:pointer" data-choice="${i}">
           <div class="prenom-nom">${p.prenom}</div>
           <span class="badge-sexe ${p.sexe}">${p.sexe === "f" ? "fille" : "garçon"}</span>
-          <div style="margin-top:6px; color:var(--or)">★ ${currentNote(p.prenom)}/10</div>
+          <div style="margin-top:6px; color:var(--or)">${currentNote(p.prenom) != null
+            ? "★ " + currentNote(p.prenom) + "/10"
+            : "<span style='color:#9ca3af'>non noté</span>"}</div>
         </div>`).join("")}
     </div>
     <p style="text-align:center"><a href="#" id="skip">Aucun des deux / passer →</a></p>`;
 
   const apply = async (win, lose) => {
-    const wNote = Math.min(10, currentNote(win.prenom) + 1);
-    const lNote = Math.max(1, currentNote(lose.prenom) - 1);
+    const wNote = Math.min(10, (currentNote(win.prenom) ?? NEUTRE) + 1);
+    const lNote = Math.max(1, (currentNote(lose.prenom) ?? NEUTRE) - 1);
     playerNote.set(win.prenom, wNote);
     playerNote.set(lose.prenom, lNote);
     try {
@@ -96,7 +97,6 @@ export async function initDuel() {
     if (f.length) ranked = f; // garde-fou
   }
   pool = ranked.slice(0, TOP_N);
-  avgNote = new Map(agg.map(a => [a.prenom, Math.round(a.moyenne)]));
   playerNote = new Map(rows.filter(r => r.parent === parent).map(r => [r.prenom, r.note]));
   nextPair();
 }

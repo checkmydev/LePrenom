@@ -17,3 +17,9 @@ test("classifyOrigine : quelques prénoms distinctifs", () => {
 test("classifyOrigine : défaut Française pour prénom sans marqueur", () => {
   assert.equal(classifyOrigine("Zzblorptix"), "Française");
 });
+
+test("classifyOrigine : prénoms composés (prioritaire)", () => {
+  assert.equal(classifyOrigine("Anne-Sophie"), "Composé");
+  assert.equal(classifyOrigine("Marie-Claire"), "Composé");
+  assert.equal(classifyOrigine("Lou Ann"), "Composé");
+});
