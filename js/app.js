@@ -79,15 +79,21 @@ document.addEventListener("click", (e) => {
   if (a) { e.preventDefault(); openFiche(a.dataset.prenom, a.dataset.sexe); }
 });
 
-// En-tête cliquable : retour à l'accueil (pour changer de famille / de profil).
-function goAccueil(e) { if (e) e.preventDefault(); location.hash = "#accueil"; }
+// En-tête cliquable : revenir au CHOIX DE LA FAMILLE (on réinitialise la famille).
+function goAccueil(e) {
+  if (e) e.preventDefault();
+  clearFamille();
+  refreshWho();
+  if (location.hash === "#accueil") renderAccueil();
+  else location.hash = "#accueil";
+}
 
 window.addEventListener("hashchange", route);
 window.addEventListener("DOMContentLoaded", () => {
   const brand = document.getElementById("brand");
   const who = document.getElementById("who");
-  brand.style.cursor = "pointer"; brand.title = "Accueil (changer de famille / profil)";
-  who.style.cursor = "pointer"; who.title = "Accueil (changer de famille / profil)";
+  brand.style.cursor = "pointer"; brand.title = "Changer de famille";
+  who.style.cursor = "pointer"; who.title = "Changer de famille";
   brand.addEventListener("click", goAccueil);
   who.addEventListener("click", goAccueil);
   renderAccueil();
