@@ -1,4 +1,4 @@
-const CACHE = "leprenom-v19";
+const CACHE = "leprenom-v20";
 const ASSETS = [
   "./", "./index.html", "./css/styles.css", "./manifest.json",
   "./data/prenoms.json",

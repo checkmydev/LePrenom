@@ -18,10 +18,33 @@ export async function initDashboard() {
     return;
   }
   rows = rows.filter(r => r.sexe === "f"); // filles uniquement dans l'interface
-  const total = (await loadCatalog()).filter(p => p.sexe === "f").length;
+  const catF = (await loadCatalog()).filter(p => p.sexe === "f");
+  const total = catF.length;
   const nbMaman = rows.filter(r => r.parent === "maman").length;
   const nbPapa = rows.filter(r => r.parent === "papa").length;
-  const pct = (n) => total ? Math.round((n / total) * 1000) / 10 : 0;
+  const pct = (n, t = total) => t ? Math.round((n / t) * 1000) / 10 : 0;
+
+  // --- Progression par origine ---
+  const origineOf = new Map(catF.map(p => [p.prenom, p.origine]));
+  const totalByOrig = {};
+  for (const p of catF) totalByOrig[p.origine] = (totalByOrig[p.origine] || 0) + 1;
+  const ratedByOrig = { maman: {}, papa: {} };
+  for (const r of rows) {
+    const o = origineOf.get(r.prenom);
+    if (o && ratedByOrig[r.parent]) ratedByOrig[r.parent][o] = (ratedByOrig[r.parent][o] || 0) + 1;
+  }
+  const origins = Object.keys(totalByOrig).sort((a, b) => totalByOrig[b] - totalByOrig[a]);
+  const origTableRows = origins.map((o) => {
+    const t = totalByOrig[o];
+    const m = ratedByOrig.maman[o] || 0;
+    const p = ratedByOrig.papa[o] || 0;
+    return `<tr>
+      <td style="padding:4px 8px">${o}</td>
+      <td style="padding:4px 8px; text-align:right; color:#6b7280">${t}</td>
+      <td style="padding:4px 8px; text-align:right">${m} <small style="color:#6b7280">(${pct(m, t)}%)</small></td>
+      <td style="padding:4px 8px; text-align:right">${p} <small style="color:#6b7280">(${pct(p, t)}%)</small></td>
+    </tr>`;
+  }).join("");
   const kpi = (emoji, label, n) => {
     const p = pct(n);
     return `<div class="card" style="flex:1; min-width:150px; text-align:center">
@@ -53,6 +76,18 @@ export async function initDashboard() {
     <div style="display:flex; gap:12px; flex-wrap:wrap">
       ${kpi("👩", "Maman", nbMaman)}
       ${kpi("👨", "Papa", nbPapa)}
+    </div>
+    <div class="card" style="overflow-x:auto">
+      <b>Par origine</b> <small style="color:#6b7280">(notés / total)</small>
+      <table style="width:100%; border-collapse:collapse; margin-top:6px; font-size:.9rem">
+        <thead><tr style="text-align:left; color:#6b7280">
+          <th style="padding:4px 8px">Origine</th>
+          <th style="padding:4px 8px; text-align:right">Total</th>
+          <th style="padding:4px 8px; text-align:right">👩 Maman</th>
+          <th style="padding:4px 8px; text-align:right">👨 Papa</th>
+        </tr></thead>
+        <tbody>${origTableRows}</tbody>
+      </table>
     </div>
 
     <h2>🏆 Top 10</h2>
